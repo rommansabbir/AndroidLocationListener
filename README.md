@@ -45,12 +45,17 @@ class MainActivity : AppCompatActivity(), PermissionCallback {
          * Check if granted or not
          */
         if(isGranted){
+		/**
+		 * Get location after a period of time
+		 */
             LocationListener.getLocationPeriodic(5000, object : LocationCallback {
                 override fun onLocationSuccess(location: Location) {
                     Toast.makeText(this@MainActivity, "${location.latitude}, ${location.longitude}", Toast.LENGTH_SHORT).show()
                 }
             })
-
+		/**
+		 * Get location for a single time
+		 */
             LocationListener.getLocation(object : LocationCallback{
                 override fun onLocationSuccess(location: Location) {
                     Toast.makeText(this@MainActivity, "${location.latitude}, ${location.longitude}", Toast.LENGTH_SHORT).show()
