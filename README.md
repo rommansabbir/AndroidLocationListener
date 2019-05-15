@@ -28,7 +28,8 @@ Step 2. Add the dependency
 
 | Releases        
 | ------------- |
-| v1.0.1	      |
+| v1.1          |
+| v1.0.1        |
 | v1.0          |
 
 
@@ -36,60 +37,54 @@ Step 2. Add the dependency
 
 ### For Java: 
 
-```java
-public class MainActivity extends AppCompatActivity implements
-        LocationListener.LocationListenerCallbackInterface {
-    private LocationListener locationListener;
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+```Kotlin
+class MainActivity : AppCompatActivity(), PermissionCallback {
 
+    override fun onPermissionRequest(isGranted: Boolean) {
         /**
-         * Instantiate LocationListener
-         * Pass the context of the parent class
-         * @param context
+         * Check if granted or not
          */
-        locationListener = new LocationListener(this);
+        if(isGranted){
+            LocationListener.getLocationPeriodic(5000, object : LocationCallback {
+                override fun onLocationSuccess(location: Location) {
+                    Toast.makeText(this@MainActivity, "${location.latitude}, ${location.longitude}", Toast.LENGTH_SHORT).show()
+                }
+            })
 
-        /**
-         * Request for runtime permission if permission isn't available
-         */
-        locationListener.requestLocationPermission();
-
-        /**
-         * This method is responsible for return location object
-         */
-        locationListener.getLocation();
-
-        /**
-         * This method is responsible for return location object after a specific interval
-         * This method accept only "long" value and interval time should be in milli second
-         * @param intervalTimeMillis
-         */
-        locationListener.getLocationPeriodic(10000);
+            LocationListener.getLocation(object : LocationCallback{
+                override fun onLocationSuccess(location: Location) {
+                    Toast.makeText(this@MainActivity, "${location.latitude}, ${location.longitude}", Toast.LENGTH_SHORT).show()
+                }
+            })
+        }
     }
 
-
-    @Override
-    public void onLocationSuccess(Location location) {
-        //TODO Implement your logic here
-    }
-
-    @Override
-    public void onLocationFailure(String ERROR_MESSAGE) {
-        //TODO Implement your login here
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
         /**
-         * Destroy the callback after it usages for fail safe
+         * Set LocationListener component with activity
          */
-        locationListener.destroyCallback();
+        LocationListener.setComponent(this)
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        /**
+         * Pass to the LocationListener
+         */
+        LocationListener.processResult(requestCode, permissions, grantResults)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        /**
+         * Self Destroy LocationListener
+         */
+        LocationListener.selfDestroy()
     }
 }
+
 ```
 
 
